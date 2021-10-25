@@ -1,0 +1,97 @@
+version: "3.8"
+services:
+  reverse-proxy:
+    image: nginx:1.17.10
+    container_name: reverse_proxy
+    depends_on:
+      - store
+      - menu
+      - order
+    volumes:
+      - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - api-gateway
+
+  store:
+    image: project-store-api
+    container_name: project-store-api
+    build: ./store
+    depends_on:
+      - store-db
+    ports:
+      - 5001:5001
+    networks:
+      - api-gateway
+      - store-service
+  
+  store-db:
+    image: mongo
+    container_name: store-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: comp3122
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+      MONGO_INITDB_DATABASE: admin
+    volumes:
+      - ./store/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    networks:
+      - store-service
+
+  menu:
+    image: project-menu-api
+    container_name: project-menu-api
+    build: ./menu
+    depends_on:
+      - menu-db
+    ports:
+      - 5002:5002
+    networks:
+      - api-gateway
+      - menu-service
+  
+  menu-db:
+    image: mongo
+    container_name: menu-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: comp3122
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+      MONGO_INITDB_DATABASE: admin
+    volumes:
+      - ./menu/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    networks:
+      - menu-service
+
+  order:
+    image: project-order-api
+    container_name: project-order-api
+    build: ./order
+    depends_on:
+      - order-db
+    ports:
+      - 5003:5003
+    networks:
+      - api-gateway
+      - order-service
+  
+  order-db:
+    image: mongo
+    container_name: order-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: comp3122
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+      MONGO_INITDB_DATABASE: admin
+    volumes:
+      - ./order/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    networks:
+      - order-service
+
+networks:
+  api-gateway:
+    driver: bridge
+  store-service:
+    driver: bridge
+  menu-service:
+    driver: bridge
+  order-service:
+    driver: bridge
