@@ -1,14 +1,36 @@
-db.auth('comp3122', '12345')
-db = db.getSiblingDB('university')
+db.auth('comp3122', '12345');
+db = db.getSiblingDB('GoodEat');
 
-db.createCollection('student');
+db.createCollection('stores');
 
-db.student.insertOne({'student_id':'33333', 'name':'Alice', 'dept_name':'Comp. Sci.', 'gpa':3.1});
-db.student.insertOne({'student_id':'22222', 'name':'Bob', 'dept_name':'History.', 'gpa':2.0});
-db.student.insertOne({'student_id':'11111', 'name':'Carol', 'dept_name':'History', 'gpa':2.1});
+for (let i = 1; i <= 100; i++) {
+  const storeId = ("" + i).padStart(5, "0");
 
+  const possibleStatus = ["OFFLINE", "ONLINE"]
+  const offlineReason = ["OUT_OF_MENU_HOURS", "INVISIBLE", "PAUSED_BY_RESTAURANT"]
+  const val = {
+    "status": possibleStatus[i % 2],
+  }
+  res_status = (i % 2 == 0)
+    ? { ...val, offlineReason: offlineReason[i % 3] }
+    : { ...val }
 
-db.createCollection('takes');
-db.takes.insertOne({'student_id':'33333', 'course_id':'COMP1234', 'credits':1});
-db.takes.insertOne({'student_id':'22222', 'course_id':'COMP1234', 'credits':1});
-db.takes.insertOne({'student_id':'22222', 'course_id':'COMP2345', 'credits':3});
+  db.stores.insertOne({
+    "name": "store-" + storeId,
+    "store_id": storeId,
+    "status": "active",
+    "restaurant_status": res_status,
+    "holiday_hours": [
+      {
+        "2020-10-10": {
+          "open_time_periods": [
+            {
+              "start_time": "00:00",
+              "end_time": "23:59"
+            }
+          ]
+        }
+      }
+    ]
+  });
+}
