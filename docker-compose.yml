@@ -5,9 +5,10 @@ services:
     container_name: reverse_proxy
     depends_on:
       - auth
-      - store
-      - menu
-      - order
+      # - store
+      - restaurant-api
+      # - menu
+      # - order
     volumes:
       - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
     ports:
@@ -24,21 +25,28 @@ services:
     networks:
       - api-gateway
 
-  store:
-    image: project-store-api
-    container_name: project-store-api
-    build: ./store
+  store-read-api:
+    image: project-store-read-api
+    container_name: project-store-read-api
+    build: ./store/read
+    volumes:
+      - "./store/read:/code"
+    environment:
+      MONGO_SERVER_HOST: store-read-db
     depends_on:
-      - store-db
+      - store-read-db
+      - rabbitmq
     ports:
       - 5001:5001
     networks:
+      - queue
       - api-gateway
-      - store-service
+      - store-read-service
+    restart: always
   
-  store-db:
+  store-read-db:
     image: mongo
-    container_name: store-db
+    container_name: store-read-db
     environment:
       MONGO_INITDB_ROOT_USERNAME: comp3122
       MONGO_INITDB_ROOT_PASSWORD: 12345
@@ -46,23 +54,29 @@ services:
     volumes:
       - ./store/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     networks:
-      - store-service
+      - store-read-service
 
-  menu:
-    image: project-menu-api
-    container_name: project-menu-api
-    build: ./menu
+  menu-read-api:
+    image: project-menu-read-api
+    container_name: project-menu-read-api
+    build: ./menu/read
+    environment:
+      MONGO_SERVER_HOST: menu-read-db
     depends_on:
-      - menu-db
+      - menu-read-db
     ports:
       - 5002:5002
     networks:
+      - queue
       - api-gateway
-      - menu-service
-  
-  menu-db:
+      - menu-read-service
+    volumes:
+      - ./menu/read:/code
+    restart: always
+
+  menu-read-db:
     image: mongo
-    container_name: menu-db
+    container_name: menu-read-db
     environment:
       MONGO_INITDB_ROOT_USERNAME: comp3122
       MONGO_INITDB_ROOT_PASSWORD: 12345
@@ -70,38 +84,92 @@ services:
     volumes:
       - ./menu/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     networks:
-      - menu-service
+      - menu-read-service
 
-  order:
-    image: project-order-api
-    container_name: project-order-api
-    build: ./order
-    depends_on:
-      - order-db
+  menu-write-api:
+    image: project-menu-write-api
+    container_name: project-menu-write-api
+    build: ./menu/write
+    volumes:
+      - ./menu/write:/code
     ports:
       - 5003:5003
     networks:
-      - api-gateway
-      - order-service
-  
-  order-db:
+      - queue
+      - menu-write-service
+    environment:
+      MONGO_SERVER_HOST: menu-write-db
+    depends_on:
+      - rabbitmq
+      - menu-write-db
+    restart: always
+
+  menu-write-db:
     image: mongo
-    container_name: order-db
+    container_name: menu-write-db
     environment:
       MONGO_INITDB_ROOT_USERNAME: comp3122
       MONGO_INITDB_ROOT_PASSWORD: 12345
       MONGO_INITDB_DATABASE: admin
     volumes:
-      - ./order/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./menu/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     networks:
-      - order-service
+      - menu-write-service
+
+  restaurant-api:
+    image: project-restaurant-api
+    container_name: project-restaurant-api
+    build: ./restaurant
+    volumes:
+      - ./restaurant:/code
+    ports:
+      - 5004:5004
+    networks:
+      - api-gateway
+      - queue
+      - restaurant-service
+    environment:
+      MONGO_SERVER_HOST: restaurant-db
+    depends_on:
+      - rabbitmq
+      - restaurant-db
+    restart: always
+  
+  restaurant-db:
+    image: mongo
+    container_name: restaurant-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: comp3122
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+      MONGO_INITDB_DATABASE: admin
+    volumes:
+      - ./restaurant/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    networks:
+      - restaurant-service
+
+  rabbitmq:
+    image: rabbitmq
+    networks:
+      - queue
 
 networks:
+  queue:
+    driver: bridge
   api-gateway:
     driver: bridge
-  store-service:
+  
+  store-read-service:
     driver: bridge
-  menu-service:
+  store-write-service:
     driver: bridge
+  
+  menu-read-service:
+    driver: bridge
+  menu-write-service:
+    driver: bridge
+  
+  restaurant-service:
+    driver: bridge
+
   order-service:
     driver: bridge

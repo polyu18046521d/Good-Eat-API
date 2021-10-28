@@ -16,8 +16,4 @@ ENV MONGO_PASSWORD='12345'
 ENV MONGO_SERVER_HOST='store-db' 
 ENV MONGO_SERVER_PORT='27017'
 
-# run the python app.py and pass the env variables as the command line arguments
-# in a fixed order [MONGO_USERNAME] [MONGO_PASSWORD] [MONGO_SERVER_HOST] [MONGO_SERVER_PORT]
-CMD "python" "app.py" \
-    $MONGO_USERNAME $MONGO_PASSWORD \
-    $MONGO_SERVER_HOST $MONGO_SERVER_PORT
+ENTRYPOINT ["sh", "./start-consumer.sh"]
