@@ -1,14 +1,21 @@
-db.auth('comp3122', '12345')
-db = db.getSiblingDB('university')
+db.auth('comp3122', '12345');
+db = db.getSiblingDB('GoodEat');
 
-db.createCollection('student');
+db.createCollection('order');
 
-db.student.insertOne({'student_id':'33333', 'name':'Alice', 'dept_name':'Comp. Sci.', 'gpa':3.1});
-db.student.insertOne({'student_id':'22222', 'name':'Bob', 'dept_name':'History.', 'gpa':2.0});
-db.student.insertOne({'student_id':'11111', 'name':'Carol', 'dept_name':'History', 'gpa':2.1});
+for (let i = 1; i <= 5; i++) {
+  const storeId = ("" + i).padStart(5, "0");
 
-
-db.createCollection('takes');
-db.takes.insertOne({'student_id':'33333', 'course_id':'COMP1234', 'credits':1});
-db.takes.insertOne({'student_id':'22222', 'course_id':'COMP1234', 'credits':1});
-db.takes.insertOne({'student_id':'22222', 'course_id':'COMP2345', 'credits':3});
+  for (let j = 0; j < 2; j++) {
+    db.order.insertOne({
+      "order_id": storeId + (j + 1),
+      "store_id": storeId,
+      "details": [
+        {
+          "menu_id": "A",
+          "count": 1
+        }
+      ]
+    });
+  }
+}

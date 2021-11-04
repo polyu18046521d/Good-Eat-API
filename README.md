@@ -57,6 +57,13 @@ The microservices is still in developement, but there are few endpoints that are
 
   - POST /eats/\<store_id\>/menu
     > to update the restaurant menus
+  
+  Order service
+  - GET /eats/order/<order_id>
+    > to get the order inforamtion
+
+  - POST /eats/order/
+    > to create a new order 
 
 ### **Menu Service**
   - GET /<store_id>
@@ -77,6 +84,16 @@ The microservices is still in developement, but there are few endpoints that are
     > to get all store's information
   - GET /<store_id>
     > to get the information of a store
+
+### **Tracking Service**
+  - POST /
+    > to create a new order
+  - GET /<order_id>
+    > to get a order with status (PENDING/ACCPETD/CANCELED)
+
+### **Order Service**
+  - GET /<order_id>
+    > to get a order
 
 ## Implementation
 - Event queue - RabbitMQ

@@ -12,12 +12,12 @@ for (let i = 1; i <= 100; i++) {
       {
         "menu_id": "A",
         "name": "Drink A",
-        "price": "30"
+        "price": 30
       },
       {
         "menu_id": "B",
         "name": "Drink B",
-        "price": "36"
+        "price": 36
       }
     ]
   });
