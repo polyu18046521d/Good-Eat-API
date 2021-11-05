@@ -51,4 +51,4 @@ def response_helper(status, json_val, message=None):
     return jsonify({"msg": message}), status
 
 if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=5001, debug=True)
+  app.run(host="0.0.0.0", port=5201, debug=True)

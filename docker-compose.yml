@@ -25,6 +25,21 @@ services:
     networks:
       - api-gateway
 
+  store-load-balancer:
+    image: nginx:1.17.10
+    container_name: store-load-balancer
+    depends_on:
+      - store-read-api
+    volumes:
+      - ./load_balancers/store/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 5210:5210
+    networks:
+      - api-gateway
+      - store-write-service
+      - store-read-service
+    restart: always
+    
   store-read-api:
     image: project-store-read-api
     container_name: project-store-read-api
@@ -37,7 +52,7 @@ services:
       - store-read-db
       - rabbitmq
     ports:
-      - 5001:5001
+      - 5201:5201
     networks:
       - queue
       - api-gateway
@@ -55,6 +70,22 @@ services:
       - ./store/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     networks:
       - store-read-service
+  
+  menu-load-balancer:
+    image: nginx:1.17.10
+    container_name: menu-load-balancer
+    depends_on:
+      - menu-write-api
+      - menu-read-api
+    volumes:
+      - ./load_balancers/menu/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 5310:5310
+    networks:
+      - api-gateway
+      - menu-write-service
+      - menu-read-service
+    restart: always
 
   menu-read-api:
     image: project-menu-read-api
@@ -65,7 +96,7 @@ services:
     depends_on:
       - menu-read-db
     ports:
-      - 5002:5002
+      - 5301:5301
     networks:
       - queue
       - api-gateway
@@ -93,7 +124,7 @@ services:
     volumes:
       - ./menu/write:/code
     ports:
-      - 5003:5003
+      - 5300:5300
     networks:
       - queue
       - menu-write-service
@@ -115,6 +146,20 @@ services:
       - ./menu/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     networks:
       - menu-write-service
+  
+  restaurant-load-balancer:
+    image: nginx:1.17.10
+    container_name: restaurant-load-balancer
+    depends_on:
+      - restaurant-api
+    volumes:
+      - ./load_balancers/restaurant/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 5110:5110
+    networks:
+      - api-gateway
+      - restaurant-service
+    restart: always
 
   restaurant-api:
     image: project-restaurant-api
@@ -123,9 +168,8 @@ services:
     volumes:
       - ./restaurant:/code
     ports:
-      - 5004:5004
+      - 5101:5101
     networks:
-      - api-gateway
       - queue
       - restaurant-service
     environment:
@@ -147,6 +191,20 @@ services:
     networks:
       - restaurant-service
 
+  tracking-load-balancer:
+    image: nginx:1.17.10
+    container_name: tracking-load-balancer
+    depends_on:
+      - tracking-api
+    volumes:
+      - ./load_balancers/tracking/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 5410:5410
+    networks:
+      - api-gateway
+      - tracking-service
+    restart: always
+
   tracking-api:
     image: project-tracking-api
     container_name: project-tracking-api
@@ -154,7 +212,7 @@ services:
     volumes:
       - ./tracking:/code
     ports:
-      - 5005:5005
+      - 5401:5401
     networks:
       - api-gateway
       - queue
@@ -179,6 +237,20 @@ services:
       - tracking-service
     restart: always
 
+  order-load-balancer:
+    image: nginx:1.17.10
+    container_name: order-load-balancer
+    depends_on:
+      - order-api
+    volumes:
+      - ./load_balancers/order/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 5510:5510
+    networks:
+      - api-gateway
+      - order-service
+    restart: always
+
   order-api:
     image: project-order-api
     container_name: project-order-api
@@ -186,7 +258,7 @@ services:
     volumes:
       - ./order:/code
     ports:
-      - 5006:5006
+      - 5501:5501
     networks:
       - api-gateway
       - queue
