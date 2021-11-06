@@ -3,7 +3,10 @@ from flask import Flask, abort, jsonify, request
 import db
 import producer
 
+from prometheus_flask_exporter import PrometheusMetrics
+
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 @app.route("/<store_id>", methods=["POST"])
 def insert_new_menu(store_id):

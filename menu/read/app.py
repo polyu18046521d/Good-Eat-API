@@ -1,7 +1,10 @@
 from flask import Flask, abort, jsonify, request
 import db
 
+from prometheus_flask_exporter import PrometheusMetrics
+
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 @app.route("/<store_id>", methods=["GET"])
 def get_store_all_menu(store_id):
@@ -18,4 +21,4 @@ def response_helper(status, json_val, message=None):
     return jsonify({"msg": message}), status
 
 if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=5301, debug=True)
+  app.run(host="0.0.0.0", port=5301)

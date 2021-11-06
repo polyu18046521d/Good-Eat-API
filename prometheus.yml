@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 5s
+
+  external_labels:
+      monitor: 'example-app'
+
+scrape_configs:
+  - job_name: 'restaurant-api'
+    static_configs:
+      - targets: ['restaurant-api:5101']
+  
+  - job_name: 'store-read-api'
+    static_configs:
+      - targets: ['store-read-api:5201']
+  
+  - job_name: 'menu-read-api'
+    static_configs:
+      - targets: ['menu-read-api:5301']
+  
+  - job_name: 'menu-write-api'
+    static_configs:
+      - targets: ['menu-write-api:5300']
+  
+  - job_name: 'tracking-api'
+    static_configs:
+      - targets: ['tracking-api:5401']
+  
+  - job_name: 'order-api'
+    static_configs:
+      - targets: ['order-api:5501']
