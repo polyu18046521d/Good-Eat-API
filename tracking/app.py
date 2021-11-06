@@ -32,7 +32,7 @@ def response_helper(func):
 @response_helper
 @custom_circuitbreaker
 def order_query(order_id):
-    order_response = requests.get(f"http://order-api:5006/{order_id}", timeout=0.001)
+    order_response = requests.get(f"http://order-load-balancer:5510/{order_id}")
     if order_response.status_code == 404:
         return "Not Found", 404
     order = order_response.json()[0]

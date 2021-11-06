@@ -32,8 +32,8 @@ def response_helper(func):
 @custom_circuitbreaker
 def insert_new_menu(store_id):
     status = dict(db.access_status().find_one({"store_id": store_id}, {"_id": 0}))
-    store_info = requests.get(f"http://store-read-api:5001/{store_id}").json()[0]
-    menu_info = requests.get(f"http://menu-read-api:5002/{store_id}").json()[0]
+    store_info = requests.get(f"http://store-load-balancer:5210/{store_id}").json()[0]
+    menu_info = requests.get(f"http://menu-load-balancer:5310/{store_id}").json()[0]
     res = store_info | status | menu_info
     return res, 200
 

@@ -9,8 +9,8 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - 9090:9090
-    networks:
-      - prometheus-service
+    # networks:
+    #   - prometheus-service
 
   reverse-proxy:
     image: nginx:1.17.10
@@ -23,8 +23,8 @@ services:
       - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 80:80
-    networks:
-      - api-gateway
+    # networks:
+    #   - api-gateway
 
   auth:
     image: project-auth-service
@@ -32,8 +32,8 @@ services:
     build: ./auth
     ports:
       - 5000:5000
-    networks:
-      - api-gateway
+    # networks:
+    #   - api-gateway
 
   store-load-balancer:
     image: nginx:1.17.10
@@ -44,10 +44,11 @@ services:
       - ./load_balancers/store/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 5210:5210
-    networks:
-      - api-gateway
-      - store-write-service
-      - store-read-service
+    # networks:
+    #   - api-gateway
+    #   - store-write-service
+    #   - store-read-service
+    #   - balancer-service
     restart: always
     
   store-read-api:
@@ -63,11 +64,11 @@ services:
       - rabbitmq
     ports:
       - 5201:5201
-    networks:
-      - queue
-      - api-gateway
-      - store-read-service
-      - prometheus-service
+    # networks:
+    #   - queue
+    #   - api-gateway
+    #   - store-read-service
+    #   - prometheus-service
     restart: always
   
   store-read-db:
@@ -79,8 +80,8 @@ services:
       MONGO_INITDB_DATABASE: admin
     volumes:
       - ./store/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - store-read-service
+    # networks:
+    #   - store-read-service
   
   menu-load-balancer:
     image: nginx:1.17.10
@@ -92,10 +93,11 @@ services:
       - ./load_balancers/menu/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 5310:5310
-    networks:
-      - api-gateway
-      - menu-write-service
-      - menu-read-service
+    # networks:
+    #   - api-gateway
+    #   - menu-write-service
+    #   - menu-read-service
+    #   - balancer-service
     restart: always
 
   menu-read-api:
@@ -108,11 +110,11 @@ services:
       - menu-read-db
     ports:
       - 5301:5301
-    networks:
-      - queue
-      - api-gateway
-      - menu-read-service
-      - prometheus-service
+    # networks:
+    #   - queue
+    #   - api-gateway
+    #   - menu-read-service
+    #   - prometheus-service
     volumes:
       - ./menu/read:/code
     restart: always
@@ -126,8 +128,8 @@ services:
       MONGO_INITDB_DATABASE: admin
     volumes:
       - ./menu/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - menu-read-service
+    # networks:
+    #   - menu-read-service
 
   menu-write-api:
     image: project-menu-write-api
@@ -137,10 +139,10 @@ services:
       - ./menu/write:/code
     ports:
       - 5300:5300
-    networks:
-      - queue
-      - menu-write-service
-      - prometheus-service
+    # networks:
+    #   - queue
+    #   - menu-write-service
+    #   - prometheus-service
     environment:
       MONGO_SERVER_HOST: menu-write-db
     depends_on:
@@ -157,8 +159,8 @@ services:
       MONGO_INITDB_DATABASE: admin
     volumes:
       - ./menu/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - menu-write-service
+    # networks:
+    #   - menu-write-service
   
   restaurant-load-balancer:
     image: nginx:1.17.10
@@ -169,9 +171,10 @@ services:
       - ./load_balancers/restaurant/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 5110:5110
-    networks:
-      - api-gateway
-      - restaurant-service
+    # networks:
+    #   - api-gateway
+    #   - restaurant-service
+    #   - balancer-service
     restart: always
 
   restaurant-api:
@@ -182,10 +185,10 @@ services:
       - ./restaurant:/code
     ports:
       - 5101:5101
-    networks:
-      - queue
-      - restaurant-service
-      - prometheus-service
+    # networks:
+    #   - queue
+    #   - restaurant-service
+    #   - prometheus-service
     environment:
       MONGO_SERVER_HOST: restaurant-db
     depends_on:
@@ -202,8 +205,8 @@ services:
       MONGO_INITDB_DATABASE: admin
     volumes:
       - ./restaurant/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - restaurant-service
+    # networks:
+    #   - restaurant-service
 
   tracking-load-balancer:
     image: nginx:1.17.10
@@ -214,9 +217,10 @@ services:
       - ./load_balancers/tracking/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 5410:5410
-    networks:
-      - api-gateway
-      - tracking-service
+    # networks:
+    #   - api-gateway
+    #   - tracking-service
+    #   - balancer-service
     restart: always
 
   tracking-api:
@@ -227,11 +231,11 @@ services:
       - ./tracking:/code
     ports:
       - 5401:5401
-    networks:
-      - api-gateway
-      - queue
-      - tracking-service
-      - prometheus-service
+    # networks:
+    #   - api-gateway
+    #   - queue
+    #   - tracking-service
+    #   - prometheus-service
     environment:
       MONGO_SERVER_HOST: tracking-db
     depends_on:
@@ -248,8 +252,8 @@ services:
       MONGO_INITDB_DATABASE: admin
     volumes:
       - ./tracking/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - tracking-service
+    # networks:
+    #   - tracking-service
     restart: always
 
   order-load-balancer:
@@ -261,9 +265,10 @@ services:
       - ./load_balancers/order/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 5510:5510
-    networks:
-      - api-gateway
-      - order-service
+    # networks:
+    #   - api-gateway
+    #   - order-service
+    #   - balancer-service
     restart: always
 
   order-api:
@@ -274,11 +279,11 @@ services:
       - ./order:/code
     ports:
       - 5501:5501
-    networks:
-      - api-gateway
-      - queue
-      - order-service
-      - prometheus-service
+    # networks:
+    #   - api-gateway
+    #   - queue
+    #   - order-service
+    #   - prometheus-service
     environment:
       MONGO_SERVER_HOST: order-db
     depends_on:
@@ -295,40 +300,42 @@ services:
       MONGO_INITDB_DATABASE: admin
     volumes:
       - ./order/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - order-service
+    # networks:
+    #   - order-service
     restart: always
 
   rabbitmq:
     image: rabbitmq
-    networks:
-      - queue
+    # networks:
+    #   - queue
 
-networks:
+# networks:
 
-  prometheus-service:
-    driver: bridge
+#   prometheus-service:
+#     driver: bridge
+#   balancer-service:
+#     driver: bridge
 
-  queue:
-    driver: bridge
-  api-gateway:
-    driver: bridge
+#   queue:
+#     driver: bridge
+#   api-gateway:
+#     driver: bridge
   
-  store-read-service:
-    driver: bridge
-  store-write-service:
-    driver: bridge
+#   store-read-service:
+#     driver: bridge
+#   store-write-service:
+#     driver: bridge
   
-  menu-read-service:
-    driver: bridge
-  menu-write-service:
-    driver: bridge
+#   menu-read-service:
+#     driver: bridge
+#   menu-write-service:
+#     driver: bridge
   
-  restaurant-service:
-    driver: bridge
+#   restaurant-service:
+#     driver: bridge
 
-  tracking-service:
-    driver: bridge
+#   tracking-service:
+#     driver: bridge
 
-  order-service:
-    driver: bridge
+#   order-service:
+#     driver: bridge
