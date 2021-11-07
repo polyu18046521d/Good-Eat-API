@@ -43,29 +43,40 @@ The microservices is still in developement, but there are few endpoints that are
   Login service
   - POST /login 
     > to get the JWT Bearer Token
-    ```
-    {
-      "username": <username>,
-      "password": <password>
-    }
+    ```sh
+    curl -H "Content-Type: application/json" \
+      --request POST \
+      -d '{ "username": <username>, "password": <password> }' \
+      http://localhost:15000/takes/11111
     ```
     _Currently there is only one user available (username: test, password: test)_
 
   Restaurant service
   - GET /eats/\<store_id\> 
     > to get the restaurant information which include `store_name`, and `menus`
+    ```sh
+    curl localhost/eats/00001
+    ```
 
   - POST /eats/\<store_id\>/menu
     > to update the restaurant menus
+    ```sh
+    curl -H "Content-Type: application/json" \
+      --request POST \
+      -d '{"course_id": "COMP55555"}' \
+      http://localhost:15000/takes/11111
+    ```
   
   Order service
   - GET /eats/order/<order_id>
     > to get the order inforamtion
-
+    ```sh
+    curl localhost/order/000011
+    ```
   - POST /eats/order/
-    > to create a new order 
+    > to create a new order
 
-### **Menu Service**
+<!-- ### **Menu Service**
   - GET /<store_id>
     > to get all the menus of a store
   - POST /<store_id>
@@ -93,7 +104,7 @@ The microservices is still in developement, but there are few endpoints that are
 
 ### **Order Service**
   - GET /<order_id>
-    > to get a order
+    > to get a order -->
 
 ## Implementation
 - Event queue - RabbitMQ
