@@ -44,13 +44,17 @@ def response_helper(func):
 @response_helper
 @custom_circuitbreaker
 def order_query(order_id):
+    app.logger.info(
+        log_helper(
+            method="GET",
+            url="/<order_id>",
+            details=f"request {order_id}",
+        )
+    )
     status = db.access_tracking().find_one({"order_id": order_id}, {"_id": 0})
     if status == None:
         return "Order Not Found", 404
 
-    app.logger.info(
-        log_helper(method="GET", url=f"http://order-load-balancer:5510/{order_id}")
-    )
     order_response, status_code = access_order_service(order_id)
     if 500 <= status_code and status_code <= 599:
         return order_response, status_code
@@ -61,13 +65,29 @@ def order_query(order_id):
     res = order | status
     return res, 200
 
+
 @custom_circuitbreaker
 def access_order_service(order_id):
+    app.logger.info(
+        log_helper(
+            method="GET",
+            url=f"http://order-load-balancer:5510/{order_id}",
+            details="request order service",
+        )
+    )
     return requests.get(f"http://order-load-balancer:5510/{order_id}")
+
 
 @app.route("/", methods=["POST"])
 @response_helper
 def add_order():
+    app.logger.info(
+        log_helper(
+            method="POST",
+            url=f"/",
+            details=f"{request.get_json()}",
+        )
+    )
     data = dict(request.get_json())
     data["timestamp"] = datetime.ctime(datetime.now())
     order_id = str(hash(json.dumps(data)))

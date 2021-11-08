@@ -1,5 +1,6 @@
-from flask import Flask, abort, jsonify, request
+from flask import Flask, jsonify
 import db
+import json
 
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -21,27 +22,6 @@ def get_one_store(store_id):
     return response_helper(200, res)
 
 
-# @app.route("/<store_id>/status", methods=["GET"])
-# def restaurant_status(store_id):
-#   stores = access_stores()
-#   res = list(stores.find(
-#     {"store_id": store_id},
-#     {"_id": 0, "restaurant_status": 1}
-#   ))
-#   res = [ dict(x).get("restaurant_status") for x in res ]
-#   return response_helper(200, res)
-
-
-# @app.route("/<store_id>/holiday-hours", methods=["GET"])
-# def holiday_hours(store_id):
-#   stores = access_stores()
-#   old_val = list(stores.find(
-#     {"store_id": store_id},
-#     {"_id": 0, "holiday_hours": 1}
-#   ))
-#   return response_helper(200, old_val)
-
-
 def response_helper(status, json_val, message=None):
     if message == None:
         if json_val == []:
@@ -49,6 +29,11 @@ def response_helper(status, json_val, message=None):
         return jsonify(json_val), status
     else:
         return jsonify({"msg": message}), status
+
+def log_helper(status_code="", method="", url="", details=""):
+    return json.dumps(
+        {"status_code": status_code, "method": method, "url": url, "details": details}
+    )
 
 
 if __name__ == "__main__":
