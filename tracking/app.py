@@ -44,17 +44,26 @@ def response_helper(func):
 @response_helper
 @custom_circuitbreaker
 def order_query(order_id):
+    status = db.access_tracking().find_one({"order_id": order_id}, {"_id": 0})
+    if status == None:
+        return "Order Not Found", 404
+
     app.logger.info(
         log_helper(method="GET", url=f"http://order-load-balancer:5510/{order_id}")
     )
-    order_response = requests.get(f"http://order-load-balancer:5510/{order_id}")
-    if order_response.status_code == 404:
-        return "Not Found", 404
+    order_response, status_code = access_order_service(order_id)
+    if 500 <= status_code and status_code <= 599:
+        return order_response, status_code
+    if status_code == 404:
+        return "Order Not Found", 404
+
     order = order_response.json()[0]
-    status = db.access_tracking().find_one({"order_id": order_id}, {"_id": 0})
     res = order | status
     return res, 200
 
+@custom_circuitbreaker
+def access_order_service(order_id):
+    return requests.get(f"http://order-load-balancer:5510/{order_id}")
 
 @app.route("/", methods=["POST"])
 @response_helper
@@ -66,7 +75,7 @@ def add_order():
     data["order_id"] = order_id
     producer.publish(json.dumps({"event-type": "order-updated", "data": data}))
     db.access_tracking().insert_one({"order_id": order_id, "status": "PENDING"})
-    return {"order_id": order_id}, 200
+    return {"order_id": order_id}, 201
 
 
 def log_helper(status_code="", method="", url="", details=""):

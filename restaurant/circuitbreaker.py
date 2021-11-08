@@ -44,7 +44,7 @@ def custom_circuitbreaker(func, service_name="Service", threshold=5, timeout=3):
                 res = func(*args, **kwargs)
                 cb.fail_count = 0
                 cb.requests_since_startup += 1
-                return res
+                return res, res.status_code
             except:
                 if cb.state == STATE.HALF_OPEN:
                     to_open()

@@ -1,3 +1,5 @@
+from logging import debug
+from typing import Tuple
 from flask import Flask, jsonify, request
 from functools import wraps
 import requests
@@ -29,18 +31,44 @@ def response_helper(func):
 
 @app.route("/<store_id>", methods=["GET"])
 @response_helper
-@custom_circuitbreaker
 def insert_new_menu(store_id):
-    status = dict(db.access_status().find_one({"store_id": store_id}, {"_id": 0}))
-    store_info = requests.get(f"http://store-load-balancer:5210/{store_id}").json()[0]
-    menu_info = requests.get(f"http://menu-load-balancer:5310/{store_id}").json()[0]
+    status_query = query_store(store_id)
+    if status_query == None:
+        return "Restaurant Not Found", 404
+    store_response, status_code = access_store_service(store_id)
+    if 500 <= status_code and status_code <= 599:
+        return store_response, status_code
+    if status_code == 404:
+        return "Restaurant Not Found", 404
+    menu_response, status_code = access_menu_service(store_id)
+    if status_code == 404:
+        return "Restaurant Not Found", 404
+    if 500 <= status_code and status_code <= 599:
+        return store_response, status_code
+
+    status = dict(status_query)
+    store_info = store_response.json()[0]
+    menu_info = menu_response.json()[0]
     res = store_info | status | menu_info
     return res, 200
+
+
+@custom_circuitbreaker
+def access_store_service(store_id):
+    return requests.get(f"http://store-load-balancer:5210/{store_id}")
+
+
+@custom_circuitbreaker
+def access_menu_service(store_id):
+    return requests.get(f"http://menu-load-balancer:5310/{store_id}")
 
 
 @app.route("/<store_id>/status", methods=["POST"])
 @response_helper
 def update_store_status(store_id):
+    status_query = query_store(store_id)
+    if status_query == None:
+        return "Restaurant Not Found", 404
     collection = db.access_status()
     val = dict(request.get_json())["status"]
     collection.update_one({"store_id": store_id}, {"$set": {"status": val}})
@@ -50,6 +78,9 @@ def update_store_status(store_id):
 @app.route("/<store_id>/menu", methods=["POST"])
 @response_helper
 def update_store_menu(store_id):
+    status_query = query_store(store_id)
+    if status_query == None:
+        return "Restaurant Not Found", 404
     data = dict(request.get_json())
     producer.publish(
         json.dumps(
@@ -59,10 +90,14 @@ def update_store_menu(store_id):
     return "", 204
 
 
+def query_store(store_id):
+    return db.access_status().find_one({"store_id": store_id}, {"_id": 0})
+
+
 if __name__ == "__main__":
     import logging, logging.config, yaml
 
     logging.config.dictConfig(yaml.safe_load(open("logging.conf")))
     log = logging.getLogger("werkzeug")
     log.disabled = True
-    app.run(host="0.0.0.0", port=5101)
+    app.run(host="0.0.0.0", port=5101, debug=True)
