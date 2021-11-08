@@ -10,8 +10,20 @@ import db
 
 from prometheus_flask_exporter import PrometheusMetrics
 
+
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
+
+
+@app.after_request
+def log_after_request(res):
+    if 500 <= res.status_code and res.status_code <= 599:
+        app.logger.error(
+            log_helper(status_code=res.status_code, details="server error")
+        )
+    else:
+        app.logger.info(log_helper(status_code=res.status_code, details="successful"))
+    return res
 
 
 def response_helper(func):
@@ -32,6 +44,9 @@ def response_helper(func):
 @response_helper
 @custom_circuitbreaker
 def order_query(order_id):
+    app.logger.info(
+        log_helper(method="GET", url=f"http://order-load-balancer:5510/{order_id}")
+    )
     order_response = requests.get(f"http://order-load-balancer:5510/{order_id}")
     if order_response.status_code == 404:
         return "Not Found", 404
@@ -54,5 +69,16 @@ def add_order():
     return {"order_id": order_id}, 200
 
 
+def log_helper(status_code="", method="", url="", details=""):
+    return json.dumps(
+        {"status_code": status_code, "method": method, "url": url, "details": details}
+    )
+
+
 if __name__ == "__main__":
+    import logging, logging.config, yaml
+
+    logging.config.dictConfig(yaml.safe_load(open("logging.conf")))
+    log = logging.getLogger("werkzeug")
+    log.disabled = True
     app.run(host="0.0.0.0", port=5401)

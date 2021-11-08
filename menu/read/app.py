@@ -24,4 +24,9 @@ def response_helper(status, json_val, message=None):
 
 
 if __name__ == "__main__":
+    import logging, logging.config, yaml
+
+    logging.config.dictConfig(yaml.safe_load(open("logging.conf")))
+    log = logging.getLogger("werkzeug")
+    log.disabled = True
     app.run(host="0.0.0.0", port=5301)

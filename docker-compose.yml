@@ -22,6 +22,35 @@ services:
     ports:
       - 3000:3000
 
+  elasticsearch:
+    image: elasticsearch:7.14.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  
+  kibana:
+    image: kibana:7.14.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.15.1
+    container_name: filebeat
+    command: filebeat -e -strict.perms=false
+    user: root
+    volumes:
+      - "./logging:/usr/share/logging"
+      - "./filebeat.yml:/usr/share/filebeat/filebeat.yml"
+    depends_on:
+      - elasticsearch
+
   reverse-proxy:
     image: nginx:1.17.10
     container_name: reverse_proxy
@@ -67,6 +96,7 @@ services:
     build: ./store/read
     volumes:
       - "./store/read:/code"
+      - ./logging/store-read-service.log:/log/store-read-service.log
     environment:
       MONGO_SERVER_HOST: store-read-db
     depends_on:
@@ -127,6 +157,7 @@ services:
     #   - prometheus-service
     volumes:
       - ./menu/read:/code
+      - ./logging/menu-read-service.log:/log/menu-read-service.log
     restart: always
 
   menu-read-db:
@@ -147,6 +178,7 @@ services:
     build: ./menu/write
     volumes:
       - ./menu/write:/code
+      - ./logging/menu-write-service.log:/log/menu-write-service.log
     ports:
       - 5300:5300
     # networks:
@@ -193,6 +225,7 @@ services:
     build: ./restaurant
     volumes:
       - ./restaurant:/code
+      - ./logging/restaurant-service.log:/log/restaurant-service.log
     ports:
       - 5101:5101
     # networks:
@@ -239,6 +272,7 @@ services:
     build: ./tracking
     volumes:
       - ./tracking:/code
+      - ./logging/tracking-service.log:/log/tracking-service.log
     ports:
       - 5401:5401
     # networks:
@@ -287,6 +321,7 @@ services:
     build: ./order
     volumes:
       - ./order:/code
+      - ./logging/order-service.log:/log/order-service.log
     ports:
       - 5501:5501
     # networks:
