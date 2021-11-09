@@ -5,9 +5,8 @@ It is a RESTful API service for the food ordering service. Clients can choose th
 
 There are mainly 8 services for the project, namely, Restaurant service, Store service, Menu service, Tracking service, Order service, Delivery service, Authentication service, and Centralized logging service.
 
-![Microservice Architecture](https://user-images.githubusercontent.com/93090281/139533871-d641e0d2-a6ff-4482-b3bc-8b60e4734d98.png)
+![Microservice Architecture](https://user-images.githubusercontent.com/93021154/140879850-ff2f5e51-bd0b-4d1c-a114-f87a7577bfcd.png)
 
-The service in green means it is completed the basic requirement and contain the basic fields. Service in red color means it is in development. The service in yellow means the data is hardcoded and will move to real database afterward. **(Latest Update: 2021/10/30)**
 
 > ### **API Gateway**
 > It is implemented with nginx as reverse proxy and force the client to do authentication before using any services.
@@ -27,9 +26,6 @@ menu_name, and price. It also adopts the CQRS pattern, the PUT/PATCH/POST or upd
 
 > ### **Order**
 > It is a service for storing the order information by the client. All the ordering request will be handled by this service, but not responsible for the order status (like accepted/canceled by the restaurant).
-
-> ### **Delivery**
-> It is a microservice for the delivery service. It will show the delivery status of the order (ON_THE_WAY, ARRIVED, PENDING)
 
 > ### **Tracking**
 > It is responsible for tracking the order status (like accepted/canceled by the restaurant).
