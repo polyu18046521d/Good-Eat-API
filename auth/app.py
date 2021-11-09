@@ -8,7 +8,10 @@ from flask_jwt_extended import (
 import json
 import redis
 
+from prometheus_flask_exporter import PrometheusMetrics
+
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 jwt = JWTManager()
 
