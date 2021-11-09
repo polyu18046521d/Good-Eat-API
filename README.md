@@ -43,7 +43,7 @@ The microservices is still in developement, but there are few endpoints that are
     curl -H "Content-Type: application/json" \
       --request POST \
       -d '{ "username": <username>, "password": <password> }' \
-      http://localhost:15000/takes/11111
+      http://localhost/login
     ```
     _Currently there is only one user available (username: test, password: test)_
 
@@ -51,26 +51,47 @@ The microservices is still in developement, but there are few endpoints that are
   - GET /eats/\<store_id\> 
     > to get the restaurant information which include `store_name`, and `menus`
     ```sh
-    curl localhost/eats/00001
+    curl --location --request GET 'localhost/eats/00001' \
+      --header 'Authorization: Bearer <login-returned-token>'
     ```
 
   - POST /eats/\<store_id\>/menu
     > to update the restaurant menus
     ```sh
-    curl -H "Content-Type: application/json" \
-      --request POST \
-      -d '{"course_id": "COMP55555"}' \
-      http://localhost:15000/takes/11111
+    curl --location --request POST 'localhost/eats/00001/menu' \
+      --header 'Authorization: Bearer <login-returned-token>' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+          "menu_id": "D",
+          "name": "Set Lunch D",
+          "price": "150"
+      }'
     ```
   
   Order service
   - GET /eats/order/<order_id>
     > to get the order inforamtion
     ```sh
-    curl localhost/order/000011
+    curl --location --request GET 'localhost/eats/order/<order-id>' \
+      --header 'Authorization: Bearer <login-returned-token>' \
     ```
+
   - POST /eats/order/
     > to create a new order
+    ```sh
+    curl --location --request POST 'localhost/eats/order' \
+      --header 'Authorization: Bearer <login-returned-token>' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+          "store_id": "00001",
+          "details": [
+              {
+                  "menu_id": "A",
+                  "count": 1
+              }
+          ]
+      }'
+    ```
 
 <!-- ### **Menu Service**
   - GET /<store_id>

@@ -1,0 +1,1 @@
+{"project_record": {"timestamp":"2021-11-09T07:59:44","service":"restaurant-service","level":"INFO","filename":"app.py","funcName":"insert_new_menu","lineNumber":"36","message":{"trace_id": 2, "span_id": "RESTAURANT-1", "status_code": "", "method": "GET", "url": "http://workers/00001", "details": "request restaurant store menu"}}}
