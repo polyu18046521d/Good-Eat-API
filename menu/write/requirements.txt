@@ -4,3 +4,4 @@ pika==1.2.0
 requests==2.26.0
 prometheus-flask-exporter==0.18.5
 pyyaml==6.0
+redis==3.5.3

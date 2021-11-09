@@ -3,6 +3,7 @@ from functools import wraps
 from datetime import datetime
 import requests
 import json
+import redis
 
 from circuitbreaker import custom_circuitbreaker
 import producer
@@ -21,8 +22,8 @@ def log_after_request(res):
         app.logger.error(
             log_helper(status_code=res.status_code, details="server error")
         )
-    else:
-        app.logger.info(log_helper(status_code=res.status_code, details="successful"))
+    # else:
+    #     app.logger.info(log_helper(status_code=res.status_code, details="successful"))
     return res
 
 
@@ -44,50 +45,81 @@ def response_helper(func):
 @response_helper
 @custom_circuitbreaker
 def order_query(order_id):
+    trace_id, span_id = get_trace_id(), get_span_id()
     app.logger.info(
         log_helper(
-            method="GET",
-            url="/<order_id>",
-            details=f"request {order_id}",
+            trace_id,
+            span_id,
+            method=request.method,
+            url=request.url,
+            details="request create a new order",
         )
     )
     status = db.access_tracking().find_one({"order_id": order_id}, {"_id": 0})
     if status == None:
+        app.logger.info(
+            log_helper(
+                trace_id,
+                get_span_id(),
+                status_code=404,
+                url=request.url,
+                details="request order not found in tracking db",
+            )
+        )
         return "Order Not Found", 404
 
-    order_response, status_code = access_order_service(order_id)
+    order_response, status_code = access_order_service(order_id, trace_id)
     if 500 <= status_code and status_code <= 599:
+        app.logger.info(
+            log_helper(
+                trace_id,
+                get_span_id(),
+                status_code=status_code,
+                url=request.url,
+                details="order service connection failed",
+            )
+        )
         return order_response, status_code
     if status_code == 404:
+        app.logger.info(
+            log_helper(
+                trace_id,
+                get_span_id(),
+                status_code=404,
+                url=request.url,
+                details="request order not found in order db",
+            )
+        )
         return "Order Not Found", 404
 
     order = order_response.json()[0]
     res = order | status
-    return res, 200
-
-
-@custom_circuitbreaker
-def access_order_service(order_id):
     app.logger.info(
         log_helper(
-            method="GET",
-            url=f"http://order-load-balancer:5510/{order_id}",
-            details="request order service",
+            trace_id,
+            get_span_id(),
+            status_code=200,
+            url=request.url,
+            details="request order success",
         )
     )
-    return requests.get(f"http://order-load-balancer:5510/{order_id}")
+    return res, 200
 
 
 @app.route("/", methods=["POST"])
 @response_helper
 def add_order():
+    trace_id, span_id = get_trace_id(), get_span_id()
     app.logger.info(
         log_helper(
-            method="POST",
-            url=f"/",
-            details=f"{request.get_json()}",
+            trace_id,
+            span_id,
+            method=request.method,
+            url=request.url,
+            details="request create a new order",
         )
     )
+
     data = dict(request.get_json())
     data["timestamp"] = datetime.ctime(datetime.now())
     order_id = str(hash(json.dumps(data)))
@@ -95,13 +127,60 @@ def add_order():
     data["order_id"] = order_id
     producer.publish(json.dumps({"event-type": "order-updated", "data": data}))
     db.access_tracking().insert_one({"order_id": order_id, "status": "PENDING"})
+
+    app.logger.info(
+        log_helper(
+            trace_id,
+            get_span_id(),
+            status_code=201,
+            url=request.url,
+            details="request order-updated Event Created",
+        )
+    )
     return {"order_id": order_id}, 201
 
 
-def log_helper(status_code="", method="", url="", details=""):
-    return json.dumps(
-        {"status_code": status_code, "method": method, "url": url, "details": details}
+@custom_circuitbreaker
+def access_order_service(order_id, trace_id):
+    app.logger.info(
+        log_helper(
+            method="GET",
+            url=f"http://order-load-balancer:5510/{order_id}",
+            details="request order service",
+        )
     )
+    return requests.get(
+        f"http://order-load-balancer:5510/{order_id}", headers={"trace-id": trace_id}
+    )
+
+
+def log_helper(trace_id, span_id, status_code="", method="", url="", details=""):
+    return json.dumps(
+        {
+            "trace_id": trace_id,
+            "span_id": span_id,
+            "status_code": status_code,
+            "method": method,
+            "url": url,
+            "details": details,
+        }
+    )
+
+
+def get_trace_id():
+    r = redis.Redis(host="redis-db", decode_responses=True)
+    trace_id = request.headers.get("trace-id")
+    if trace_id == None:
+        trace_id = r.incr("trace_id", 1)
+    else:
+        trace_id = int(trace_id)
+    return trace_id
+
+
+def get_span_id():
+    r = redis.Redis(host="redis-db", decode_responses=True)
+    span_id = f"TRACKING-{r.incr('tracking_span', 1)}"
+    return span_id
 
 
 if __name__ == "__main__":

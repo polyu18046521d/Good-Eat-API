@@ -21,7 +21,6 @@ def main():
       val = dict(data["menu"])
       menu.update_one({"store_id": store_id}, {"$push": {"menus": val}})
       producer.publish(json.dumps(json_body))
-      print("sent from menu writer")
 
   channel.basic_consume(queue='menu-writer-queue', on_message_callback=callback, auto_ack=True)
   channel.start_consuming()

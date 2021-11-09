@@ -55,22 +55,39 @@ services:
     image: nginx:1.17.10
     container_name: reverse_proxy
     depends_on:
-      - auth
-      - restaurant-api
-      - tracking-api
+      - auth-load-balancer
+      - restaurant-load-balancer
+      - tracking-load-balancer
     volumes:
       - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 80:80
     # networks:
     #   - api-gateway
-
-  auth:
-    image: project-auth-service
-    container_name: project-auth-service
-    build: ./auth
+  
+  auth-load-balancer:
+    image: nginx:1.17.10
+    container_name: auth-load-balancer
+    depends_on:
+      - auth-api
+    volumes:
+      - ./load_balancers/auth/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 5000:5000
+    restart: always
+
+  auth-api:
+    image: project-auth-api
+    container_name: project-auth-api
+    build: ./auth
+    volumes:
+      - ./auth:/code
+      - ./logging/verify-service.log:/log/verify-service.log
+    ports:
+      - 5001:5001
+    depends_on:
+      - redis-db
+    restart: always
     # networks:
     #   - api-gateway
 
@@ -102,6 +119,7 @@ services:
     depends_on:
       - store-read-db
       - rabbitmq
+      - redis-db
     ports:
       - 5201:5201
     # networks:
@@ -148,6 +166,7 @@ services:
       MONGO_SERVER_HOST: menu-read-db
     depends_on:
       - menu-read-db
+      - redis-db
     ports:
       - 5301:5301
     # networks:
@@ -190,6 +209,7 @@ services:
     depends_on:
       - rabbitmq
       - menu-write-db
+      - redis-db
     restart: always
 
   menu-write-db:
@@ -237,6 +257,7 @@ services:
     depends_on:
       - rabbitmq
       - restaurant-db
+      - redis-db
     restart: always
   
   restaurant-db:
@@ -285,6 +306,7 @@ services:
     depends_on:
       - rabbitmq
       - tracking-db
+      - redis-db
     restart: always
   
   tracking-db:
@@ -334,6 +356,7 @@ services:
     depends_on:
       - rabbitmq
       - order-db
+      - redis-db
     restart: always
   
   order-db:
@@ -353,6 +376,10 @@ services:
     image: rabbitmq
     # networks:
     #   - queue
+
+  redis-db:
+    image: redis:latest
+    container_name: redis
 
 # networks:
 
