@@ -5,6 +5,10 @@ global:
       monitor: 'example-app'
 
 scrape_configs:
+  - job_name: 'auth-api'
+    static_configs:
+      - targets: ['auth-api:5001']
+
   - job_name: 'restaurant-api'
     static_configs:
       - targets: ['restaurant-api:5101']
