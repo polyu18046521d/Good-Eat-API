@@ -20,11 +20,10 @@ class TestClass:
         )
         json_data = res.json()
         assert res.status_code == 200
-        #assert res.headers["content-type"] == "application/json"
-        #assert self.parse(json_data) == self.parse({"message": "Student Created"})
         
-   def test_eats_storeid(self):
-        res = requests.get(self.url_helper("/eats/00001"))
+    def test_eats_storeid(self):
+        headers = {'Authorization':"Bearer"+token_helper(self)}
+        res = requests.get(self.url_helper("/eats/00001"),headers=headers)
         json_data = res.json()
         assert res.status_code == 200
         
