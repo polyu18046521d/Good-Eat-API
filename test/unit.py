@@ -38,7 +38,7 @@ class TestClass:
         #token = json.dumps(json_data)
         #token_helper = json_data("access_token")
         #username = request.json.get("username", None)
-        token = res0.json.get("access_token",None)
+        token = res0.json.post("access_token",None)
         headers = {'Authorization':"Bearer" + token}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
         json_data = res.json()
