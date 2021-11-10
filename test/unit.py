@@ -38,7 +38,7 @@ class TestClass:
         token = json.dumps(json_data)
         #token_helper = json_data("access_token")
         
-        headers = {'Authorization':"Bearer" + token[1]}
+        headers = {'Authorization':"Bearer" + token[0]}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
         json_data = res.json()
         assert res.status_code == 200
