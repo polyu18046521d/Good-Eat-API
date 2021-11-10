@@ -21,7 +21,7 @@ class TestClass:
         )
         json_data = res.json()
         token = json.dumps(json_data)
-        return tocken["access_token"]
+        return token["access_token"]
     
     def test_login(self):
         res = requests.post(
