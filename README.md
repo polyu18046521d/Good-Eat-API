@@ -93,36 +93,6 @@ The microservices is still in developement, but there are few endpoints that are
       }'
     ```
 
-<!-- ### **Menu Service**
-  - GET /<store_id>
-    > to get all the menus of a store
-  - POST /<store_id>
-    > to append a menu to the store menu
-
-### **Restaurant**
-  - GET /<store_id>
-    > to get all the information of a restaruant
-  - POST /<store_id>/status
-    > to udpate the store's status (OFFLINE, ONLINE)
-  - POST /<store_id>/menu
-    > to append a menu to the store menu
-
-### **Store Service**
-  - GET /
-    > to get all store's information
-  - GET /<store_id>
-    > to get the information of a store
-
-### **Tracking Service**
-  - POST /
-    > to create a new order
-  - GET /<order_id>
-    > to get a order with status (PENDING/ACCPETD/CANCELED)
-
-### **Order Service**
-  - GET /<order_id>
-    > to get a order -->
-
 ## Implementation
 - Event queue - RabbitMQ
 - API Gateway - NGNIX
