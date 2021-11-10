@@ -7,6 +7,13 @@ class TestClass:
     def url_helper(self, path):
         return "http://localhost" + path
     
+    def token_helper(self):
+        res = requests.post(
+            self.url_helper("/login"), json={"username":"test","password":"test"}
+        )
+        json_data = res.json()
+        return json_data("access_token")
+    
     def test_login(self):
         res = requests.post(
             self.url_helper("/login"), json={"username":"test","password":"test"}
@@ -16,5 +23,9 @@ class TestClass:
         #assert res.headers["content-type"] == "application/json"
         #assert self.parse(json_data) == self.parse({"message": "Student Created"})
         
+   def test_eats_storeid(self):
+        res = requests.get(self.url_helper("/eats/00001"))
+        json_data = res.json()
+        assert res.status_code == 200
         
 
