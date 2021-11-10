@@ -12,6 +12,6 @@ def test_login():
     #test data
     mock_request_data = {"username":"test","password":"test"}
     #send request and obtain response
-    response = client.post(localhost/login, data=json.dumps(mock_request_data))
+    response = client.post(127.0.0.1/login, data=json.dumps(mock_request_data))
     #determine the status code of the response is correct
     assert response.status_code == 200
