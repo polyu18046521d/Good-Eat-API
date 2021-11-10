@@ -22,7 +22,13 @@ class TestClass:
         assert res.status_code == 200
         
     def test_eats_storeid(self):
-        headers = {'Authorization':"Bearer" + token_helper()}
+        res0 = requests.post(
+            self.url_helper("/login"), json={"username":"test","password":"test"}
+        )
+        json_data = res0.json()
+        token_helper = json_data("access_token")
+        
+        headers = {'Authorization':"Bearer" + token_helper}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
         json_data = res.json()
         assert res.status_code == 200
