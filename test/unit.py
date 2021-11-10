@@ -35,9 +35,10 @@ class TestClass:
             self.url_helper("/login"), json={"username":"test","password":"test"}
         )
         json_data = res0.json()
+        token = json.dumps(json_data)
         #token_helper = json_data("access_token")
         
-        headers = {'Authorization':"Bearer" + token_helper()}
+        headers = {'Authorization':"Bearer" + token["access_token"]}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
         json_data = res.json()
         assert res.status_code == 200
