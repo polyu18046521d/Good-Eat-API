@@ -16,15 +16,15 @@ app = Flask(__name__)
 metrics = PrometheusMetrics(app)
 
 
-@app.after_request
-def log_after_request(res):
-    if 500 <= res.status_code and res.status_code <= 599:
-        app.logger.error(
-            log_helper(status_code=res.status_code, details="server error")
-        )
-    # else:
-    #     app.logger.info(log_helper(status_code=res.status_code, details="successful"))
-    return res
+# @app.after_request
+# def log_after_request(res):
+#     if 500 <= res.status_code and res.status_code <= 599:
+#         app.logger.error(
+#             log_helper(status_code=res.status_code, details="server error")
+#         )
+#     # else:
+#     #     app.logger.info(log_helper(status_code=res.status_code, details="successful"))
+#     return res
 
 
 def response_helper(func):
@@ -43,7 +43,6 @@ def response_helper(func):
 
 @app.route("/<order_id>", methods=["GET"])
 @response_helper
-@custom_circuitbreaker
 def order_query(order_id):
     trace_id, span_id = get_trace_id(), get_span_id()
     app.logger.info(
@@ -52,7 +51,7 @@ def order_query(order_id):
             span_id,
             method=request.method,
             url=request.url,
-            details="request create a new order",
+            details="request a order",
         )
     )
     status = db.access_tracking().find_one({"order_id": order_id}, {"_id": 0})
@@ -122,7 +121,7 @@ def add_order():
 
     data = dict(request.get_json())
     data["timestamp"] = datetime.ctime(datetime.now())
-    order_id = str(hash(json.dumps(data)))
+    order_id = str(abs(hash(json.dumps(data))))
 
     data["order_id"] = order_id
     producer.publish(json.dumps({"event-type": "order-updated", "data": data}))
@@ -140,17 +139,44 @@ def add_order():
     return {"order_id": order_id}, 201
 
 
+@app.route("/<order_id>/status", methods=["POST"])
+@response_helper
+def update_order_status(order_id):
+    trace_id, span_id = get_trace_id(), get_span_id()
+    app.logger.info(
+        log_helper(
+            trace_id,
+            span_id,
+            method=request.method,
+            url=request.url,
+            details="request update order status",
+        )
+    )
+
+    req_json = dict(request.get_json())
+    new_status = req_json.get("status")
+    if (new_status == None):
+        return "Invalid request body", 404
+    order_status = db.access_tracking().find_one({"order_id": order_id}, {"_id": 0})
+    if (order_status == None):
+        return "Order Id Not Found", 404
+    db.access_tracking().update_one({"order_id": order_id}, {"$set": {"status": new_status}})
+    return "", 204
+
+
 @custom_circuitbreaker
 def access_order_service(order_id, trace_id):
     app.logger.info(
         log_helper(
+            trace_id,
+            get_span_id(),
             method="GET",
             url=f"http://order-load-balancer:5510/{order_id}",
             details="request order service",
         )
     )
     return requests.get(
-        f"http://order-load-balancer:5510/{order_id}", headers={"trace-id": trace_id}
+        f"http://order-load-balancer:5510/{order_id}", headers={"trace-id": str(trace_id)}
     )
 
 
