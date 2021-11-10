@@ -93,6 +93,16 @@ The microservices is still in developement, but there are few endpoints that are
       }'
     ```
 
+  - POST /eats/order/<order_id>/status
+    > to update order status
+    ```sh
+    curl --location --request POST 'localhost/eats/order/000011/status' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+          "status": "ACCEPTED"
+      }'
+    ```
+
 ## Implementation
 - Event queue - RabbitMQ
 - API Gateway - NGNIX
