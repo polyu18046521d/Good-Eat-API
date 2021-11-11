@@ -16,20 +16,8 @@ class TestClass:
             return obj
     
     def token_helper(self):
-       		res0 = requests.post(self.url_helper("/login"), json={"username":"test","password":"test"})
-        	json_data = res.json()
-        	data = json.dumps(json_data)
-	
-        	count0 =0
-        	while data[count0]!=':':
-			count0=count0 + 1
-
-		count1 = 0
-		while data[count1]!='}':
-			count1=count1 + 1
-		
-		token=data[count0+3:count1-1]
-	return token
+	#tbc
+        return token
     
     def test_login(self):
         res = requests.post(
@@ -39,11 +27,22 @@ class TestClass:
         assert res.status_code == 200
         
     def test_eats_storeid(self):
-       
-        headers = {'Authorization':"Bearer " + self.token_helper()}
-        #headers = {'Authorization':"Bearer" + token_helper}
-        res = requests.get(self.url_helper("/eats/00001"),headers=headers)
-        #json_data = res.json()
-        assert res.status_code == 200
+        res0 = requests.post(
+            self.url_helper("/login"), json={"username":"test","password":"test"}
+        )
+        json_data = res0.json()
         
+        data = json.dumps(json_data)
+        count0 =0
+        while data[count0]!=':':
+	        count0=count0+1
 
+        count1 = 0
+        while data[count1]!='}':
+	        count1=count1+1
+
+        token=data[count0+3:count1-1]
+        
+        headers = {'Authorization':"Bearer " + token}
+        res = requests.get(self.url_helper("/eats/00001"),headers=headers)
+        assert res.status_code == 200
