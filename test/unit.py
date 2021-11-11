@@ -47,11 +47,11 @@ class TestClass:
 
         token=data[count0+3:count1-1]
         whole_token="Bearer " + token
-        print(whole_token)
-        
+        print(whole_token)    
         #token_helper = json.loads(json_data)
         #token = token_helper["access_token"]
-	headers = {'Authorization': 'Bearer {}'.format(whole_token)}
+	#headers = {'Authorization': 'Bearer {}'.format(whole_token)}
+	headers = {'Authorization': 'Bearer {}'.format(whole_tocken)}
 	#headers = {'Authorization': whole_token}
         #headers = {'Authorization':"Bearer" + token_helper}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
