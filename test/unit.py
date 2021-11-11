@@ -29,7 +29,6 @@ class TestClass:
         )
         json_data = res.json()
         assert res.status_code == 200
-	
     #Restaurant service    
     def test_eats_storeid(self):
         res0 = requests.post(
@@ -84,7 +83,6 @@ class TestClass:
 		self.url_helper("/eats/00001/menu"), json={"menu_id": "D","name": "Set Lunch D","price": "150"}
 	    )   
         assert res.status_code == 200
-	
 	# Order service	   
     def test_eats_order_orderid(self):
         res0 = requests.post(
@@ -109,7 +107,7 @@ class TestClass:
 	    )   
         assert res.status_code == 200
 
-    def test_eats_store(self):
+    def test_eats_order(self):
         res0 = requests.post(
             self.url_helper("/login"), json={"username":"test","password":"test"}
         )
@@ -139,3 +137,26 @@ class TestClass:
                                              }
 	    )   
         assert res.status_code == 200        
+
+    def test_eats_order_orderid_status(self):
+        res0 = requests.post(
+            self.url_helper("/eats/order/000011/status"), json={"username":"test","password":"test"}
+        )
+        json_data = res0.json()
+                
+        data = json.dumps(json_data)
+        count0 =0
+        while data[count0]!=':':
+	        count0=count0+1
+
+        count1 = 0
+        while data[count1]!='}':
+	        count1=count1+1
+
+        token=data[count0+3:count1-1]
+        
+        headers = {'Content-Type': 'application/json'}
+        res = requests.post(
+		self.url_helper("/eats/order"), json={"status": "ACCEPTED"}
+	    )   
+        assert res.status_code == 200
