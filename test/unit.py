@@ -16,8 +16,12 @@ class TestClass:
             return obj
     
     def token_helper(self):
-	#tbc
-        return token
+        res = requests.post(
+            self.url_helper("/login"), json={"username":"test","password":"test"}
+        )
+        json_data = res.json()
+        token = json.dumps(json_data)
+        return token["access_token"]
     
     def test_login(self):
         res = requests.post(
@@ -31,6 +35,10 @@ class TestClass:
             self.url_helper("/login"), json={"username":"test","password":"test"}
         )
         json_data = res0.json()
+        #token = json.dumps(json_data)
+       # token_helper = json_data["access_token"]
+        #username = request.json.get("username", None)
+        #token = res0.json.post("access_token",None)
         
         data = json.dumps(json_data)
         count0 =0
@@ -43,6 +51,12 @@ class TestClass:
 
         token=data[count0+3:count1-1]
         
+        
+        
+        #token_helper = json.loads(json_data)
+        #token = token_helper["access_token"]
         headers = {'Authorization':"Bearer " + token}
+        #headers = {'Authorization':"Bearer" + token_helper}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
+        #json_data = res.json()
         assert res.status_code == 200
