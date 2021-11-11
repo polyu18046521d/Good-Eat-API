@@ -16,12 +16,8 @@ class TestClass:
             return obj
     
     def token_helper(self):
-        res = requests.post(
-            self.url_helper("/login"), json={"username":"test","password":"test"}
-        )
-        json_data = res.json()
-        token = json.dumps(json_data)
-        return token["access_token"]
+        #tbc
+        return token
     
     def test_login(self):
         res = requests.post(
@@ -50,12 +46,12 @@ class TestClass:
 	        count1=count1+1
 
         token=data[count0+3:count1-1]
-        
+        whole_token="Bearer " + token
         
         
         #token_helper = json.loads(json_data)
         #token = token_helper["access_token"]
-        headers = {'Authorization':"Bearer " + token}
+        headers = {'Authorization': whole_token}
         #headers = {'Authorization':"Bearer" + token_helper}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
         #json_data = res.json()
