@@ -58,7 +58,7 @@ class TestClass:
         headers = {'Authorization':"Bearer" + token}
         #headers = {'Authorization':"Bearer" + token_helper}
         res = requests.get(self.url_helper("/eats/00001"),headers=headers)
-        json_data = res.json()
+        #json_data = res.json()
         assert res.status_code == 200
         
 
