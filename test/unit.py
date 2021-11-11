@@ -22,11 +22,11 @@ class TestClass:
 	
         	count0 =0
         	while data[count0]!=':':
-			count0=count0+1
+			count0=count0 + 1
 
 		count1 = 0
 		while data[count1]!='}':
-			count1=count1+1
+			count1=count1 + 1
 		
 		token=data[count0+3:count1-1]
 	return token
