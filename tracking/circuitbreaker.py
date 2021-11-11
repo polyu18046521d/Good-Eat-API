@@ -9,6 +9,7 @@ def custom_circuitbreaker(func, service_name="Service", threshold=5, timeout=3):
         def to_open():
             cb.state = STATE.OPEN
             cb.timestamp = datetime.now().timestamp()
+            cb.requests_since_startup = 0
 
         def to_close():
             cb.state = STATE.CLOSE
@@ -51,6 +52,7 @@ def custom_circuitbreaker(func, service_name="Service", threshold=5, timeout=3):
                 cb.fail_count += 1
                 return f"Service Error", 504
         else:
+            cb.requests_since_startup += 1
             return f"{service_name} is currently not available", 503
 
     class STATE(Enum):
