@@ -18,18 +18,18 @@ class TestClass:
     def token_helper(self):
        		res0 = requests.post(self.url_helper("/login"), json={"username":"test","password":"test"})
         	json_data = res.json()
-           	data = json.dumps(json_data)
+        	data = json.dumps(json_data)
 	
         	count0 =0
         	while data[count0]!=':':
-	        	count0=count0+1
+			count0=count0+1
 
-        	count1 = 0
-        	while data[count1]!='}':
-	        	count1=count1+1
-
-        	token=data[count0+3:count1-1]
-       return token
+		count1 = 0
+		while data[count1]!='}':
+			count1=count1+1
+		
+		token=data[count0+3:count1-1]
+	return token
     
     def test_login(self):
         res = requests.post(
