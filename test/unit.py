@@ -47,7 +47,7 @@ class TestClass:
 
         token=data[count0+3:count1-1]
         whole_token="Bearer " + token
-        
+        print(whole_token)
         
         #token_helper = json.loads(json_data)
         #token = token_helper["access_token"]
