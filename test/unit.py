@@ -61,7 +61,7 @@ class TestClass:
         #json_data = res.json()
         assert res.status_code == 200
 		   
-def eats_storeid_menu(self):
+def test_eats_storeid_menu(self):
         res0 = requests.post(
             self.url_helper("/login"), json={"username":"test","password":"test"}
         )
@@ -84,7 +84,7 @@ def eats_storeid_menu(self):
 	)
         assert res.status_code == 200
 		   
-def eats_order_orderid(self):
+def test_eats_order_orderid(self):
         res0 = requests.post(
             self.url_helper("/login"), json={"username":"test","password":"test"}
         )
