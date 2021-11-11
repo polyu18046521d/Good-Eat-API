@@ -54,7 +54,7 @@ def insert_new_menu(store_id):
     if status_code == 404:
         return "Restaurant Not Found", 404
     if 500 <= status_code and status_code <= 599:
-        return store_response, status_code
+        return menu_response, status_code
 
     status = dict(status_query)
     store_info = store_response.json()[0]
