@@ -28,6 +28,10 @@ jobs:
       # Runs a single command using the runners shell
       - name: Build the stack
         run: docker-compose up -d
+        
+      - name: Sleep for 1 minute
+        run: sleep 60s
+        shell: bash
 
       # Runs a set of commands using the runners shell
       - name: Install dependencies
