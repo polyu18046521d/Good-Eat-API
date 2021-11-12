@@ -214,6 +214,47 @@ services:
       - ./logging/restaurant-service.log:/log/restaurant-service.log
     ports:
       - 5101:5101
+    environment:
+      MONGO_SERVER_HOST: restaurant-db
+    depends_on:
+      - rabbitmq
+      - restaurant-db
+      - redis-db
+    restart: always
+
+  restaurant-api-2:
+    image: project-restaurant-api
+    container_name: project-restaurant-api-2
+    build: ./restaurant
+    volumes:
+      - ./restaurant:/code
+      - ./logging/restaurant-service.log:/log/restaurant-service.log
+    ports:
+      - 5102:5101
+    environment:
+      MONGO_SERVER_HOST: restaurant-db
+    depends_on:
+      - rabbitmq
+      - restaurant-db
+      - redis-db
+    restart: always
+
+  restaurant-api-3:
+    image: project-restaurant-api
+    container_name: project-restaurant-api-3
+    build: ./restaurant
+    volumes:
+      - ./restaurant:/code
+      - ./logging/restaurant-service.log:/log/restaurant-service.log
+    ports:
+      - 5103:5101
+    environment:
+      MONGO_SERVER_HOST: restaurant-db
+    depends_on:
+      - rabbitmq
+      - restaurant-db
+      - redis-db
+    restart: always
 
     environment:
       MONGO_SERVER_HOST: restaurant-db
@@ -254,6 +295,42 @@ services:
       - ./logging/tracking-service.log:/log/tracking-service.log
     ports:
       - 5401:5401
+
+    environment:
+      MONGO_SERVER_HOST: tracking-db
+    depends_on:
+      - rabbitmq
+      - tracking-db
+      - redis-db
+    restart: always
+
+  tracking-api-2:
+    image: project-tracking-api
+    container_name: project-tracking-api-2
+    build: ./tracking
+    volumes:
+      - ./tracking:/code
+      - ./logging/tracking-service.log:/log/tracking-service.log
+    ports:
+      - 5402:5401
+
+    environment:
+      MONGO_SERVER_HOST: tracking-db
+    depends_on:
+      - rabbitmq
+      - tracking-db
+      - redis-db
+    restart: always
+
+  tracking-api-3:
+    image: project-tracking-api
+    container_name: project-tracking-api-3
+    build: ./tracking
+    volumes:
+      - ./tracking:/code
+      - ./logging/tracking-service.log:/log/tracking-service.log
+    ports:
+      - 5403:5401
 
     environment:
       MONGO_SERVER_HOST: tracking-db

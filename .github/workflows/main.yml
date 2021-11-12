@@ -27,7 +27,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Build the stack
-        run: docker-compose up -d
+        run: docker-compose  -f "docker-compose.yml" up -d --build store-read-db menu-read-db menu-write-db restaurant-db tracking-db order-db rabbitmq redis-db order-api order-load-balancer tracking-api tracking-load-balancer restaurant-api restaurant-load-balancer menu-write-api menu-read-api menu-load-balancer store-read-api store-load-balancer auth-api auth-load-balancer reverse-proxy
 
       # Ensure all the service started up
       - name: Sleep for 2 minute
