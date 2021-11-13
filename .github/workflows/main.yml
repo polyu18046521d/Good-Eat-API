@@ -17,9 +17,9 @@ jobs:
       - name: Build the stack
         run: docker-compose  -f "docker-compose.yml" up -d --build store-read-db menu-read-db menu-write-db restaurant-db tracking-db order-db rabbitmq redis-db order-api order-load-balancer tracking-api tracking-load-balancer restaurant-api restaurant-load-balancer menu-write-api menu-read-api menu-load-balancer store-read-api store-load-balancer auth-api auth-load-balancer reverse-proxy
 
-      - name: Sleep for 2 minute
-        run: sleep 120s
-        shell: bash
+      # - name: Sleep for 2 minute
+      #   run: sleep 120s
+      #   shell: bash
 
       - name: Install dependencies
         run: |
