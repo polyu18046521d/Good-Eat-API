@@ -3,7 +3,7 @@ import requests
 
 class TestClass:
     def url_helper(self, path):
-        return "http://localhost" + path
+        return "http://localhost:8080" + path
 
     def parse(self, obj):
         if isinstance(obj, dict):
@@ -42,25 +42,25 @@ class TestClass:
         assert self.parse(json_data) == self.parse({"msg": "Bad username or password"})
 
     # Restaurant service
-    # def test_eats_storeId(self):
-    #     res = requests.get(
-    #         self.url_helper("/eats/00001"),
-    #         headers=self.auth_header(),
-    #     )
-    #     json_data = res.json()
-    #     assert res.status_code == 200
-    #     assert res.headers["content-type"] == "application/json"
-    #     assert self.parse(json_data) == self.parse(
-    #         {
-    #             "menus": [
-    #                 {"menu_id": "A", "name": "Drink A", "price": 30.0},
-    #                 {"menu_id": "B", "name": "Drink B", "price": 36.0},
-    #             ],
-    #             "name": "store-00001",
-    #             "status": "ONLINE",
-    #             "store_id": "00001",
-    #         }
-    #     )
+    def test_eats_storeId(self):
+        res = requests.get(
+            self.url_helper("/eats/00001"),
+            headers=self.auth_header(),
+        )
+        json_data = res.json()
+        assert res.status_code == 200
+        assert res.headers["content-type"] == "application/json"
+        assert self.parse(json_data) == self.parse(
+            {
+                "menus": [
+                    {"menu_id": "A", "name": "Drink A", "price": 30.0},
+                    {"menu_id": "B", "name": "Drink B", "price": 36.0},
+                ],
+                "name": "store-00001",
+                "status": "ONLINE",
+                "store_id": "00001",
+            }
+        )
 
     def test_eats_storeId_menu(self):
         res = requests.post(
@@ -73,22 +73,22 @@ class TestClass:
         assert res.content == b""
 
     # Order service
-    # def test_eats_order_orderId(self):
-    #     res = requests.get(
-    #         self.url_helper("/eats/order/000011"),
-    #         headers=self.auth_header(),
-    #     )
-    #     json_data = res.json()
-    #     assert res.status_code == 200
-    #     assert res.headers["content-type"] == "application/json"
-    #     assert self.parse(json_data) == self.parse(
-    #         {
-    #             "details": [{"count": 1.0, "menu_id": "A"}],
-    #             "order_id": "000011",
-    #             "status": "PENDING",
-    #             "store_id": "00001",
-    #         }
-    #     )
+    def test_eats_order_orderId(self):
+        res = requests.get(
+            self.url_helper("/eats/order/000011"),
+            headers=self.auth_header(),
+        )
+        json_data = res.json()
+        assert res.status_code == 200
+        assert res.headers["content-type"] == "application/json"
+        assert self.parse(json_data) == self.parse(
+            {
+                "details": [{"count": 1.0, "menu_id": "A"}],
+                "order_id": "000011",
+                "status": "PENDING",
+                "store_id": "00001",
+            }
+        )
 
     def test_eats_order(self):
         res = requests.post(
