@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from functools import wraps
 import requests
 import redis
@@ -18,8 +18,9 @@ def response_helper(func):
     @wraps(func)
     def helper(*args, **kwargs):
         val, status = func(*args, **kwargs)
-        if isinstance(val, str):
-            
+        if isinstance(val, Response):
+            return val
+        elif isinstance(val, str):
             return jsonify({"msg": val}), status
         else:
             if val == []:
